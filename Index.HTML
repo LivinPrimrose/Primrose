@@ -385,6 +385,27 @@
             <div id="documentInfo" class="info">Wajib mengunggah KTP jika single atau sendiri, dan Kartu Keluarga jika berkeluarga.</div>
         </div>
 
+        <!-- Halaman 4 -->
+        <div class="page" id="page4">
+            <h3>Verifikasi Tambahan</h3>
+
+            <!-- Field Pertanyaan Jumlah Kendaraan -->
+            <label for="vehicleCapacity">Apakah Jumlah Kendaraan sesuai dengan kapasitas Garasi Kendaraan di Rumah?</label>
+            <select id="vehicleCapacity" onchange="showVehicleNotification(this.value)">
+                <option value="">Pilih Jawaban</option>
+                <option value="YA">YA</option>
+                <option value="TIDAK">TIDAK</option>
+            </select>
+
+            <!-- Field Pertanyaan Hewan Peliharaan -->
+            <label for="hasPet">Apakah Anda memiliki hewan peliharaan?</label>
+            <select id="hasPet" onchange="showPetNotification(this.value)">
+                <option value="">Pilih Jawaban</option>
+                <option value="YA">YA</option>
+                <option value="TIDAK">TIDAK</option>
+            </select>
+        </div>
+
         <!-- Halaman Terima Kasih -->
         <div class="page" id="thankYouPage">
             <h2>Terima Kasih!</h2>
@@ -395,179 +416,180 @@
 
     <!-- Container untuk Tombol Navigasi -->
     <div class="button-container">
-        <!-- Tombol Kembali (Muncul di Halaman 2 dan 3) -->
+        <!-- Tombol Kembali (Muncul di Halaman 2, 3, dan 4) -->
         <button class="back-button" id="backButton" onclick="prevPage()" style="display: none;">← Kembali</button>
         
-        <!-- Tombol Selanjutnya (Muncul di Halaman 1 dan 2) -->
-        <button class="next-button" id="nextButton" onclick="validateCurrentPage()">Selanjutnya →</button>
+        <!-- Tombol Selanjutnya (Muncul di Halaman 1, 2, dan 3) -->
+        <button class="next-button" id="nextButton" onclick="nextPage()">Selanjutnya →</button>
         
-        <!-- Tombol Submit (Muncul di Halaman 3) -->
+        <!-- Tombol Submit (Muncul di Halaman 4) -->
         <button class="submit-button" id="submitButton" onclick="validateAndSubmit()" style="display: none;">Submit</button>
     </div>
 
     <script>
-        // Fungsi untuk mengontrol tampilan tombol berdasarkan halaman aktif
-        function updateButtonVisibility() {
-            const currentPage = document.querySelector('.page.active').id;
-            const backButton = document.getElementById('backButton');
-            const nextButton = document.getElementById('nextButton');
-            const submitButton = document.getElementById('submitButton');
+        let currentPage = 1;
+        const totalPages = 4;
 
-            if (currentPage === 'page1') {
-                backButton.style.display = 'none';
-                nextButton.style.display = 'block';
-                submitButton.style.display = 'none';
-            } else if (currentPage === 'page2') {
-                backButton.style.display = 'block';
-                nextButton.style.display = 'block';
-                submitButton.style.display = 'none';
-            } else if (currentPage === 'page3') {
-                backButton.style.display = 'block';
-                nextButton.style.display = 'none';
-                submitButton.style.display = 'block';
-            } else if (currentPage === 'thankYouPage') {
-                backButton.style.display = 'none';
-                nextButton.style.display = 'none';
-                submitButton.style.display = 'none';
-            }
-        }
+        // Fungsi untuk menampilkan halaman aktif
+        function showPage(pageNumber) {
+            // Sembunyikan semua halaman
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
 
-        // Fungsi untuk validasi halaman saat ini
-        function validateCurrentPage() {
-            const currentPage = document.querySelector('.page.active').id;
+            // Tampilkan halaman yang dipilih
+            const pageId = pageNumber === 'thankYouPage' ? 'thankYouPage' : `page${pageNumber}`;
+            document.getElementById(pageId).classList.add('active');
 
-            if (currentPage === 'page1') {
-                validatePage('page1', ['block', 'houseNumber', 'status']);
-            } else if (currentPage === 'page2') {
-                validatePage('page2', ['name', 'age', 'gender', 'religion', 'phone', 'job', 'company']);
-            }
-        }
-
-        // Fungsi untuk validasi halaman
-        function validatePage(pageId, fields) {
-            let isValid = true;
-
-            fields.forEach(field => {
-                const fieldId = field;
-                const errorId = `${field}Error`;
-                const message = `Field ${field} harus diisi.`;
-
-                if (!showError(fieldId, errorId, message)) {
-                    isValid = false;
-                }
-            });
-
-            if (isValid) {
-                nextPage(pageId);
-            }
-        }
-
-        // Fungsi untuk menampilkan atau menyembunyikan pesan error
-        function showError(fieldId, errorId, message) {
-            const field = document.getElementById(fieldId);
-            const error = document.getElementById(errorId);
-
-            if (!field.value.trim()) {
-                error.textContent = message;
-                error.style.display = 'block';
-                return false; // Validasi gagal
-            } else {
-                error.style.display = 'none';
-                return true; // Validasi berhasil
-            }
+            // Update tombol navigasi
+            document.getElementById('backButton').style.display = pageNumber > 1 ? 'block' : 'none';
+            document.getElementById('nextButton').style.display = pageNumber < totalPages ? 'block' : 'none';
+            document.getElementById('submitButton').style.display = pageNumber === totalPages ? 'block' : 'none';
         }
 
         // Fungsi untuk berpindah ke halaman berikutnya
-        function nextPage(currentPageId) {
-            const currentPage = document.getElementById(currentPageId);
-            currentPage.classList.remove('active');
-
-            if (currentPageId === "page1") {
-                document.getElementById('page2').classList.add('active');
-            } else if (currentPageId === "page2") {
-                document.getElementById('page3').classList.add('active');
-            } else if (currentPageId === "page3") {
-                document.getElementById('thankYouPage').classList.add('active');
+        function nextPage() {
+            if (validatePage(currentPage)) {
+                currentPage++;
+                showPage(currentPage);
             }
-
-            updateButtonVisibility(); // Perbarui tampilan tombol
         }
 
         // Fungsi untuk kembali ke halaman sebelumnya
         function prevPage() {
-            const currentPage = document.querySelector('.page.active');
-            currentPage.classList.remove('active');
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        }
 
-            if (currentPage.id === "page2") {
-                document.getElementById('page1').classList.add('active');
-            } else if (currentPage.id === "page3") {
-                document.getElementById('page2').classList.add('active');
+        // Fungsi untuk validasi halaman
+        function validatePage(pageNumber) {
+            const validations = {
+                1: ['block', 'houseNumber', 'status'],
+                2: ['name', 'age', 'gender', 'religion', 'phone', 'job', 'company'],
+                3: ['familyMembers', 'document'],
+                4: ['vehicleCapacity', 'hasPet']
+            };
+
+            let isValid = true;
+
+            // Validasi untuk halaman 3
+            if (pageNumber === 3) {
+                const familyMembers = parseInt(document.getElementById('familyMembers').value);
+                if (familyMembers > 0) {
+                    for (let i = 1; i <= familyMembers; i++) {
+                        const fields = [`familyName${i}`, `familyGender${i}`, `familyAge${i}`, `familyReligion${i}`, `familyPosition${i}`];
+                        fields.forEach(field => {
+                            const element = document.getElementById(field);
+                            const errorElement = document.getElementById(`${field}Error`);
+                            if (!element.value) {
+                                isValid = false;
+                                if (errorElement) errorElement.style.display = 'block';
+                            } else {
+                                if (errorElement) errorElement.style.display = 'none';
+                            }
+                        });
+                    }
+                }
             }
 
-            updateButtonVisibility(); // Perbarui tampilan tombol
+            // Validasi untuk halaman lainnya
+            validations[pageNumber].forEach(field => {
+                const element = document.getElementById(field);
+                const errorElement = document.getElementById(`${field}Error`);
+                if (!element.value) {
+                    isValid = false;
+                    if (errorElement) errorElement.style.display = 'block';
+                } else {
+                    if (errorElement) errorElement.style.display = 'none';
+                }
+            });
+
+            return isValid;
+        }
+
+        // Fungsi untuk menampilkan notifikasi kendaraan
+        function showVehicleNotification(value) {
+            if (value === "TIDAK") {
+                alert("Sesuaikan Jumlah Kendaraan dirumah Anda dengan kapasitas Garasi di Rumah Untuk Ketertiban dan Kenyamanan bersama. Hindari mendzalimi orang lain dengan parkir dijalan karena kapasitas garasi tidak cukup.");
+            }
+        }
+
+        // Fungsi untuk menampilkan notifikasi hewan peliharaan
+        function showPetNotification(value) {
+            if (value === "YA") {
+                alert("Peraturan awal cluster dari Galuh Mas menyatakan bahwa Penghuni tidak diperkenankan memiliki hewan peliharaan agar tidak mengganggu kenyamanan Warga lain.");
+            }
         }
 
         // Fungsi untuk validasi dan submit data
         function validateAndSubmit() {
-            let isValid = true;
+            if (validatePage(4)) {
+                // Kumpulkan data utama dari form
+                const formData = {
+                    block: document.getElementById('block').value,
+                    houseNumber: document.getElementById('houseNumber').value,
+                    status: document.getElementById('status').value,
+                    name: document.getElementById('name').value,
+                    age: document.getElementById('age').value,
+                    gender: document.getElementById('gender').value,
+                    religion: document.getElementById('religion').value,
+                    phone: document.getElementById('phone').value,
+                    job: document.getElementById('job').value,
+                    company: document.getElementById('company').value,
+                    familyMembers: document.getElementById('familyMembers').value,
+                    vehicleCapacity: document.getElementById('vehicleCapacity').value,
+                    hasPet: document.getElementById('hasPet').value
+                };
 
-            const familyMembers = parseInt(document.getElementById('familyMembers').value);
-            const documentUpload = document.getElementById('document').files;
-
-            if (isNaN(familyMembers)) {
-                document.getElementById('familyMembersError').style.display = 'block';
-                isValid = false;
-            } else {
-                document.getElementById('familyMembersError').style.display = 'none';
-            }
-
-            if (documentUpload.length === 0) {
-                document.getElementById('documentError').style.display = 'block';
-                isValid = false;
-            } else {
-                document.getElementById('documentError').style.display = 'none';
-            }
-
-            // Validasi field anggota keluarga
-            if (familyMembers > 0) {
-                for (let i = 1; i <= familyMembers; i++) {
-                    const fields = [
-                        `familyName${i}`,
-                        `familyGender${i}`,
-                        `familyAge${i}`,
-                        `familyReligion${i}`,
-                        `familyPosition${i}`
-                    ];
-
-                    fields.forEach(field => {
-                        const fieldId = field;
-                        const errorId = `${field}Error`;
-                        const message = `Field ${field} harus diisi.`;
-
-                        if (!showError(fieldId, errorId, message)) {
-                            isValid = false;
-                        }
-                    });
+                // Kumpulkan data anggota keluarga
+                const familyMembers = parseInt(document.getElementById('familyMembers').value);
+                if (familyMembers > 0) {
+                    formData.familyData = [];
+                    for (let i = 1; i <= familyMembers; i++) {
+                        formData.familyData.push({
+                            name: document.getElementById(`familyName${i}`).value,
+                            gender: document.getElementById(`familyGender${i}`).value,
+                            age: document.getElementById(`familyAge${i}`).value,
+                            religion: document.getElementById(`familyReligion${i}`).value,
+                            position: document.getElementById(`familyPosition${i}`).value
+                        });
+                    }
                 }
-            }
 
-            if (isValid) {
-                // Tampilkan halaman terima kasih
-                document.getElementById('page3').classList.remove('active');
-                document.getElementById('thankYouPage').classList.add('active');
-                updateButtonVisibility(); // Sembunyikan tombol setelah submit
-            }
-        }
+                // Handle file upload
+                const fileInput = document.getElementById('document');
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        formData.document = {
+                            file: e.target.result.split(',')[1], // Ambil base64
+                            filename: file.name,
+                            mimeType: file.type
+                        };
 
-        // Fungsi untuk memperbarui keterangan dokumen yang diperlukan
-        function updateDocumentRequirement() {
-            const familyMembers = parseInt(document.getElementById('familyMembers').value);
-            const documentInfo = document.getElementById('documentInfo');
-
-            if (familyMembers === 0) {
-                documentInfo.textContent = "Wajib mengunggah KTP karena Anda single atau sendiri.";
-            } else {
-                documentInfo.textContent = "Wajib mengunggah Kartu Keluarga Jika Anda berkeluarga.";
+                        // Kirim data ke Google Apps Script
+                        fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
+                            method: 'POST',
+                            body: JSON.stringify(formData),
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+                            alert(data); // Tampilkan pesan sukses
+                            showPage('thankYouPage'); // Tampilkan halaman terima kasih
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Terjadi kesalahan saat mengirim data.');
+                        });
+                    };
+                    reader.readAsDataURL(file); // Baca file sebagai base64
+                } else {
+                    alert("Dokumen harus diupload.");
+                }
             }
         }
 
@@ -630,8 +652,8 @@
             }
         }
 
-        // Panggil fungsi updateButtonVisibility saat halaman dimuat
-        updateButtonVisibility();
+        // Inisialisasi halaman pertama
+        showPage(1);
     </script>
 </body>
 </html>
