@@ -568,27 +568,28 @@
                     mimeType: file.type
                 };
 
-                // Kirim data ke Google Apps Script
-                fetch('https://script.google.com/macros/s/AKfycbzkl_j9NmTKEl1PDAqmhp1FCgcZH65wmkt_SbTDuJNVPsDaYGofXBw5dKIUkQJuFfd1/exec', {
-                    method: 'POST',
-                    body: JSON.stringify(formData),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json()) // Tanggapi sebagai JSON
-                .then(data => {
-                    if (data.status === "success") {
-                        alert(data.message); // Tampilkan pesan sukses
-                        showPage('thankYouPage'); // Tampilkan halaman terima kasih
-                    } else {
-                        alert("Terjadi kesalahan: " + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat mengirim data.');
-                });
+                              // Kirim data ke Google Apps Script
+  const xhr = new XMLHttpRequest();
+xhr.open('POST', 'https://script.google.com/macros/s/AKfycbzkl_j9NmTKEl1PDAqmhp1FCgcZH65wmkt_SbTDuJNVPsDaYGofXBw5dKIUkQJuFfd1/exec', true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+
+xhr.onload = function () {
+    if (xhr.status >= 200 && xhr.status < 300) {
+        const data = JSON.parse(xhr.responseText);
+        alert(data.message); // Tampilkan pesan sukses
+        showPage('thankYouPage'); // Tampilkan halaman terima kasih
+    } else {
+        console.error('Error:', xhr.statusText);
+        alert('Terjadi kesalahan saat mengirim data.');
+    }
+};
+
+xhr.onerror = function () {
+    console.error('Error:', xhr.statusText);
+    alert('Terjadi kesalahan jaringan.');
+};
+
+xhr.send(JSON.stringify(formData));
             };
             reader.readAsDataURL(file); // Baca file sebagai base64
         } else {
