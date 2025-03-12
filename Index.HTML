@@ -523,75 +523,79 @@
 
         // Fungsi untuk validasi dan submit data
         function validateAndSubmit() {
-            if (validatePage(4)) {
-                // Kumpulkan data utama dari form
-                const formData = {
-                    block: document.getElementById('block').value,
-                    houseNumber: document.getElementById('houseNumber').value,
-                    status: document.getElementById('status').value,
-                    name: document.getElementById('name').value,
-                    age: document.getElementById('age').value,
-                    gender: document.getElementById('gender').value,
-                    religion: document.getElementById('religion').value,
-                    phone: document.getElementById('phone').value,
-                    job: document.getElementById('job').value,
-                    company: document.getElementById('company').value,
-                    familyMembers: document.getElementById('familyMembers').value,
-                    vehicleCapacity: document.getElementById('vehicleCapacity').value,
-                    hasPet: document.getElementById('hasPet').value
-                };
+    if (validatePage(4)) {
+        // Kumpulkan data utama dari form
+        const formData = {
+            block: document.getElementById('block').value,
+            houseNumber: document.getElementById('houseNumber').value,
+            status: document.getElementById('status').value,
+            name: document.getElementById('name').value,
+            age: document.getElementById('age').value,
+            gender: document.getElementById('gender').value,
+            religion: document.getElementById('religion').value,
+            phone: document.getElementById('phone').value,
+            job: document.getElementById('job').value,
+            company: document.getElementById('company').value,
+            familyMembers: document.getElementById('familyMembers').value,
+            vehicleCapacity: document.getElementById('vehicleCapacity').value,
+            hasPet: document.getElementById('hasPet').value
+        };
 
-                // Kumpulkan data anggota keluarga
-                const familyMembers = parseInt(document.getElementById('familyMembers').value);
-                if (familyMembers > 0) {
-                    formData.familyData = [];
-                    for (let i = 1; i <= familyMembers; i++) {
-                        formData.familyData.push({
-                            name: document.getElementById(`familyName${i}`).value,
-                            gender: document.getElementById(`familyGender${i}`).value,
-                            age: document.getElementById(`familyAge${i}`).value,
-                            religion: document.getElementById(`familyReligion${i}`).value,
-                            position: document.getElementById(`familyPosition${i}`).value
-                        });
-                    }
-                }
-
-                // Handle file upload
-                const fileInput = document.getElementById('document');
-                if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        formData.document = {
-                            file: e.target.result.split(',')[1], // Ambil base64
-                            filename: file.name,
-                            mimeType: file.type
-                        };
-    
-                        // Kirim data ke Google Apps Script
-                        fetch('https://script.google.com/macros/s/AKfycbzkl_j9NmTKEl1PDAqmhp1FCgcZH65wmkt_SbTDuJNVPsDaYGofXBw5dKIUkQJuFfd1/exec', {
-                            method: 'POST',
-                            body: JSON.stringify(formData),
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            alert(data); // Tampilkan pesan sukses
-                            showPage('thankYouPage'); // Tampilkan halaman terima kasih
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Terjadi kesalahan saat mengirim data.');
-                        });
-                    };
-                    reader.readAsDataURL(file); // Baca file sebagai base64
-                } else {
-                    alert("Dokumen harus diupload.");
-                }
+        // Kumpulkan data anggota keluarga
+        const familyMembers = parseInt(document.getElementById('familyMembers').value);
+        if (familyMembers > 0) {
+            formData.familyData = [];
+            for (let i = 1; i <= familyMembers; i++) {
+                formData.familyData.push({
+                    name: document.getElementById(`familyName${i}`).value,
+                    gender: document.getElementById(`familyGender${i}`).value,
+                    age: document.getElementById(`familyAge${i}`).value,
+                    religion: document.getElementById(`familyReligion${i}`).value,
+                    position: document.getElementById(`familyPosition${i}`).value
+                });
             }
         }
+
+        // Handle file upload (opsional, tergantung kebutuhan)
+        const fileInput = document.getElementById('document');
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                formData.document = {
+                    file: e.target.result.split(',')[1], // Ambil base64
+                    filename: file.name,
+                    mimeType: file.type
+                };
+
+                // Kirim data ke Google Apps Script
+                fetch('https://script.google.com/macros/s/AKfycbzkl_j9NmTKEl1PDAqmhp1FCgcZH65wmkt_SbTDuJNVPsDaYGofXBw5dKIUkQJuFfd1/exec', {
+                    method: 'POST',
+                    body: JSON.stringify(formData),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json()) // Tanggapi sebagai JSON
+                .then(data => {
+                    if (data.status === "success") {
+                        alert(data.message); // Tampilkan pesan sukses
+                        showPage('thankYouPage'); // Tampilkan halaman terima kasih
+                    } else {
+                        alert("Terjadi kesalahan: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat mengirim data.');
+                });
+            };
+            reader.readAsDataURL(file); // Baca file sebagai base64
+        } else {
+            alert("Dokumen harus diupload.");
+        }
+    }
+}
 
         // Fungsi untuk menghasilkan field anggota keluarga
         function generateFamilyFields() {
