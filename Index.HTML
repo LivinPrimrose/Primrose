@@ -567,15 +567,7 @@
                             filename: file.name,
                             mimeType: file.type
                         };
-         sendDataToGoogleAppsScript(formData);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            sendDataToGoogleAppsScript(formData);
-        }
-    }
-}
-
+    
                         // Kirim data ke Google Apps Script
                         fetch('https://script.google.com/macros/s/AKfycbzkl_j9NmTKEl1PDAqmhp1FCgcZH65wmkt_SbTDuJNVPsDaYGofXBw5dKIUkQJuFfd1/exec', {
                             method: 'POST',
